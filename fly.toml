@@ -1,23 +1,29 @@
-# fly.toml app configuration file generated for automation-eoineq on 2025-06-25T20:09:29Z
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
+# ─────────────────────────────────────────────────────────
+# fly.toml for self-hosted n8n (Automation-Eoineq)
+# ─────────────────────────────────────────────────────────
+app            = "automation-eoineq"
+primary_region = "den"
 
-app = 'automation-eoineq'
-primary_region = 'den'
+[build]                      # ← leave empty; you’re using a Dockerfile
 
-[build]
+# ── Service definition (replaces old [http_service]) ──
+[[services]]
+  internal_port = 5678       # n8n listens on 5678
+  protocol       = "tcp"
 
-[http_service]
-  internal_port = 5678
-  force_https = true
-  auto_stop_machines = 'disabled'
-  auto_start_machines = true
+  [[services.ports]]
+    port = 80                # HTTP
+
+  [[services.ports]]
+    port = 443               # HTTPS
+    handlers = ["tls", "http"]
+
+# ── Keep at least one machine running (no cold-start) ──
+[deploy]
   min_machines_running = 1
-  processes = ['app']
 
+# ── VM size ─────────────────────────────────────────────
 [[vm]]
-  memory = '1gb'
-  cpu_kind = 'shared'
-  cpus = 1
   memory_mb = 1024
+  cpu_kind  = "shared"
+  cpus      = 1
